@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Created on Wed May 15 08:08:41 2019
 
@@ -41,38 +40,10 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.naive_bayes import BernoulliNB
 
-def printResult(y_test, y_pred):
-    print("Accuracy = {:05.2f}%. Mislabelled points = {}/{}"
-          .format(100*(1-(y_test != y_pred).sum()/y_test.shape[0]),
-                  (y_test != y_pred).sum(),
-                  y_test.shape[0]
-    ))
-
-def fitAndPredict(train_X, test_X, train_y):
-    scaler = preprocessing.StandardScaler().fit(train_X)
-    X_train_scaled = scaler.transform(train_X)
-    
-    # Check if the scaling was correct. Mean should be centered around 0 and Standard Deviation around 1
-    # print(X1_train_scaled.mean(axis=0))
-    # print(X1_train_scaled.std(axis=0))
-    
-    X_test_scaled = scaler.transform(test_X)
-    bnb = BernoulliNB()
-    bnb.fit(X_train_scaled,train_y)
-    return bnb.predict(X_test_scaled)
-
-def usePipeline(train_X, test_X, train_y):
-    pipeline = make_pipeline(preprocessing.StandardScaler(), BernoulliNB())
-    hyperParams = { 'bernoullinb__alpha': [1.0],  'bernoullinb__binarize': [0.0],
-                    'bernoullinb__class_prior': [None],  'bernoullinb__fit_prior': [True]}
-    clf = GridSearchCV(pipeline,hyperParams,cv=10)
-    clf.fit(train_X, train_y)
-    return clf.predict(test_X)
-
 def main():
 
     # Read the data set.
-    dataset_file = "diagnosis.data"
+    dataset_file = "D:\\Data Science\\UCI Dataset\\Acute Inflammations Data Set\\diagnosis.data"
     header_list = ["Temp", "Nausea", "Lumbar_Pain", "Pushing", "Micturition", "Burning", "Y1", "Y2"]
     data = pd.read_csv(dataset_file, sep="\t", encoding = "utf-8", names=header_list)
     
@@ -95,7 +66,7 @@ def main():
         1. Given the data -> Prdeict if the patient has Acute inflammation of urinary bladder (Y1) or not.
         2. Given the data -> Prdeict if the patient has Acute nephritis of renal pelvis (Y2) or not.
     
-    Also, to begin with, we will use a Bernoulli Naive Bayes classifier as it works well when features are Binary.
+    Also, to begin with, we will use a Bernoulli Naive Bayes classifier as it works well when feature set is Binary.
     '''
     
     # Preprocessing - Divide the problem into 2 sub problems
@@ -137,6 +108,51 @@ def main():
     As the feature set here is directly correlated with accurate values, we get an optimal result even with the 
     normal fitAndPredict method.
     '''
+
+# Method to print the Accuracy results for the given test data and predicted data
+def printResult(y_test, y_pred):
+    print("Accuracy = {:05.2f}%. Mislabelled points = {}/{}"
+          .format(100*(1-(y_test != y_pred).sum()/y_test.shape[0]),
+                  (y_test != y_pred).sum(),
+                  y_test.shape[0]
+    ))
+
+# Method to fit and classify the given dataset
+def fitAndPredict(train_X, test_X, train_y):
+    
+    # StandardScaler standardized the provided data.
+    # We need to make sure that the data is sclaed on the train data and the same scaler is used on the test data
+    # This is to use the same means and standard deviations as we used to transform the training set. 
+    # Thus, it will be a fair representation of the model
+    scaler = preprocessing.StandardScaler().fit(train_X)
+    X_train_scaled = scaler.transform(train_X)
+    
+    # Check if the scaling was correct. Mean should be centered around 0 and Standard Deviation around 1
+    # print(X1_train_scaled.mean(axis=0))
+    # print(X1_train_scaled.std(axis=0))
+    
+    X_test_scaled = scaler.transform(test_X)
+    
+    # Use the Bernoulli Naive Bayes from sklearn and predict the test data
+    bnb = BernoulliNB()
+    bnb.fit(X_train_scaled,train_y)
+    return bnb.predict(X_test_scaled)
+
+# Method to fit and classify the given dataset by using the make_pipeline method from sklearn
+def usePipeline(train_X, test_X, train_y):
+    
+    '''
+    The make_pipeline method enables us to create a pipeline with the model, which could be then reused/modified easily.
+    We use this pipeline in the GridSearchCV which does the cross-validation. We use 10-fold CV below.
+    We can also tune the hyperparameters using GridSearchCV, but in this case we don't need it due to the feature set.
+    I have used the existing set of hyperparameters for BernoulliNB. You can obtain that using: pipeline.get_params()
+    '''
+    pipeline = make_pipeline(preprocessing.StandardScaler(), BernoulliNB())
+    hyperParams = { 'bernoullinb__alpha': [1.0],  'bernoullinb__binarize': [0.0],
+                    'bernoullinb__class_prior': [None],  'bernoullinb__fit_prior': [True]}
+    clf = GridSearchCV(pipeline,hyperParams,cv=10)
+    clf.fit(train_X, train_y)
+    return clf.predict(test_X)
 
 if __name__ == '__main__':
     main()
