@@ -3,7 +3,7 @@
 ----------------------------------------------------------------------------
 # Overview of Dataset
 
-Dataset used: UCI Dataset Repository -> Acute Inflammations Data Set
+Dataset used: UCI Dataset Repository -> Acute Inflammations Dataset
 Source: http://archive.ics.uci.edu/ml/datasets/Acute+Inflammations
 
 Abstract: The data was created by a medical expert as a data set to test 
