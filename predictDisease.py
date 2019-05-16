@@ -72,7 +72,7 @@ def usePipeline(train_X, test_X, train_y):
 def main():
 
     # Read the data set.
-    dataset_file = "D:\\Data Science\\UCI Dataset\\Acute Inflammations Data Set\\diagnosis.data"
+    dataset_file = "diagnosis.data"
     header_list = ["Temp", "Nausea", "Lumbar_Pain", "Pushing", "Micturition", "Burning", "Y1", "Y2"]
     data = pd.read_csv(dataset_file, sep="\t", encoding = "utf-8", names=header_list)
     
